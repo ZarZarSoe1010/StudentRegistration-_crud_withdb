@@ -13,7 +13,6 @@
 			<div class="login">
 				<div class="login-header">
 					<h1>Welcome!</h1>
-					<p>Please check your data again.</p>
 				</div>
 			</div>
 			<div style="color: blue;">${msg }</div>

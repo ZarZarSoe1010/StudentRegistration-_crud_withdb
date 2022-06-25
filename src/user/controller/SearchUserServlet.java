@@ -47,7 +47,7 @@ public class SearchUserServlet extends HttpServlet {
 		UserDAO dao = new UserDAO();
 		ArrayList<UserResponseDTO> userResList = new ArrayList<UserResponseDTO>();
 		ArrayList<UserBean>userBeanList=new ArrayList<UserBean>();
-		if (id.isEmpty() && name.isEmpty()) {
+		if (id.isBlank() && name.isBlank()) {
 			userResList = dao.selectAllUser();
 		} 	
 		else {

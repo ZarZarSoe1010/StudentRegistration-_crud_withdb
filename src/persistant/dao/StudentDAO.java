@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import persistant.dto.CourseResponseDTO;
 import persistant.dto.StudentRequestDTO;
@@ -59,36 +60,11 @@ public class StudentDAO {
 		try {
 			PreparedStatement ps = con.prepareStatement(sql);
 			ps.setString(1, studentId);
-			result=ps.executeUpdate();
+			result = ps.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("Database Delete error");
 		}
 		return result;
-	}
-
-	public ArrayList<StudentResponseDTO> selectByFilter(String  studentId,String name,String course) {
-		ArrayList<StudentResponseDTO> studentList = new ArrayList<StudentResponseDTO>();
-		String sql = "select * from student where sid=? or name=?";
-		try {
-			PreparedStatement ps = con.prepareStatement(sql);
-			ps.setString(1, studentId);
-			ps.setString(2, name);
-
-			ResultSet rs = ps.executeQuery();
-			while (rs.next()) {
-				StudentResponseDTO res = new StudentResponseDTO();
-				res.setSid(rs.getString("sid"));
-				res.setName(rs.getString("name"));
-				res.setDob(rs.getString("dob"));
-				res.setGender(rs.getString("gender"));
-				res.setPhone(rs.getString("phone"));
-				res.setEducation(rs.getString("education"));
-				studentList.add(res);
-			}
-		} catch (SQLException e) {
-			System.out.println("Database selectByfilter error!!");
-		}
-		return studentList;
 	}
 
 	public ArrayList<StudentResponseDTO> selectAll() {
@@ -163,34 +139,87 @@ public class StudentDAO {
 			while (rs.next()) {
 				courseIdList.add(rs.getString("cid"));
 			}
-			for(String cid: courseIdList) {
-				 sql="select * from course where cid=?";
-				 ps=con.prepareStatement(sql);
-				 ps.setString(1, cid.trim());
-				 rs=ps.executeQuery();
-				 while(rs.next()) {
-					 CourseResponseDTO course=new CourseResponseDTO();
-					 course.setCid(rs.getString("cid"));
-					 course.setName(rs.getString("name"));
-					 courseList.add(course);
-				 }
+			for (String cid : courseIdList) {
+				sql = "select * from course where cid=?";
+				ps = con.prepareStatement(sql);
+				ps.setString(1, cid.trim());
+				rs = ps.executeQuery();
+				while (rs.next()) {
+					CourseResponseDTO course = new CourseResponseDTO();
+					course.setCid(rs.getString("cid"));
+					course.setName(rs.getString("name"));
+					courseList.add(course);
+				}
 			}
 		} catch (SQLException e) {
 			System.out.println("Database selectByfilter error!!");
 		}
-		return  courseList;
+		return courseList;
 	}
-	
-	public int deleteStudent_Course( String studentId) {
+
+	public int deleteStudent_Course(String studentId) {
 		int result = 0;
 		String sql = "delete from student_course where sid=?";
 		try {
 			PreparedStatement ps = con.prepareStatement(sql);
-			ps.setString(1,studentId);
-			result=ps.executeUpdate();
+			ps.setString(1, studentId);
+			result = ps.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println("Database Delete error");
 		}
 		return result;
+	}
+
+	public ArrayList<StudentResponseDTO> selectByFilter(String studentId, String name, String course) {
+		ArrayList<StudentResponseDTO> studentList = new ArrayList<StudentResponseDTO>();
+		String sql = "select * from student where sid=? or name=?";
+		try {
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setString(1, studentId);
+			ps.setString(2, name);
+
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				StudentResponseDTO res = new StudentResponseDTO();
+				res.setSid(rs.getString("sid"));
+				res.setName(rs.getString("name"));
+				res.setDob(rs.getString("dob"));
+				res.setGender(rs.getString("gender"));
+				res.setPhone(rs.getString("phone"));
+				res.setEducation(rs.getString("education"));
+				studentList.add(res);
+			}
+		} catch (SQLException e) {
+			System.out.println("Database selectByfilter error!!");
+		}
+		return studentList;
+	}
+
+	public List<StudentResponseDTO> selectStudentListByIdOrNameOrCourse(String id, String name, String course) {
+		List<StudentResponseDTO> studentList = new ArrayList<StudentResponseDTO>();
+		String sql = " select distinct s.sid,s.name,sc.cid,c.name from student s join student_course sc \r\n"
+				+ " on s.sid=sc.sid \r\n" + "join course c \r\n" + " on sc.cid=c.cid\r\n"
+				+ " where s.sid like ? or s.name like ? or c.name like ? ;";
+		try {
+			PreparedStatement ps = con.prepareStatement(sql);
+			String stuId = id.isBlank() ? id : ("%" + id + "%");
+			String stuName= name.isBlank() ? name: ("%" + name + "%");
+			String stuCourse = course.isBlank() ? course : ("%" + course + "%");
+			ps.setString(1, stuId);
+			ps.setString(2, stuName);
+			ps.setString(3, stuCourse);
+			
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				StudentResponseDTO res = new StudentResponseDTO();
+				res.setSid(rs.getString("sid"));
+				res.setName(rs.getString("name"));
+				studentList.add(res);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		List<StudentResponseDTO>value=studentList.stream().distinct().collect(Collectors.toList());
+		return value;
 	}
 }

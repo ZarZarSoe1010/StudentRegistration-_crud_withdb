@@ -1,6 +1,7 @@
+/LoginServlet.class
+/LogoutServlet.class
 /com/
-/user/
-/student/
-/classes/
 /course/
 /persistant/
+/student/
+/user/

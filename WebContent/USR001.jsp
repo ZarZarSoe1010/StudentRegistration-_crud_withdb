@@ -120,7 +120,7 @@
 								<div class="col-md-4">
 									<select class="form-select" aria-label="Education" id="userRole" name="userRole" value="${userBean.userRole}">
 										<option selected>Admin</option>
-										<option value="1">User</option>
+										<option value="${userBean.userRole}">User</option>
 									</select>
 								</div>
 							</div>							

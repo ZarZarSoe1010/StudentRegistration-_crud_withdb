@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.model.CourseBean;
 import com.model.StudentBean;
 
+import persistant.dao.CourseDAO;
 import persistant.dao.StudentDAO;
 import persistant.dto.CourseResponseDTO;
 import persistant.dto.StudentRequestDTO;
@@ -42,46 +43,73 @@ public class SearchStuServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String sid = request.getParameter("sid");
+		String sid = request.getParameter("sid") ;
 		String sname = request.getParameter("sname");
-		String scourse=request.getParameter("scourse");
-	
+		String scourse = request.getParameter("scourse");
+
 		StudentDAO dao = new StudentDAO();
-		ArrayList<StudentResponseDTO> stuResList = new ArrayList<StudentResponseDTO>();
+		List<StudentResponseDTO> stuResList = new ArrayList<StudentResponseDTO>();
 		ArrayList<StudentBean> stuBeanList = new ArrayList<StudentBean>();
-		if (sid.isEmpty() && sname.isEmpty() && scourse.isEmpty()) {
+		if (sid.isBlank() && sname.isBlank() && scourse.isBlank()) {
 			stuResList = dao.selectAll();
 		} else {
-			stuResList = dao.selectByFilter(sid,sname,scourse);		
+			stuResList = dao.selectStudentListByIdOrNameOrCourse(sid, sname, scourse);
 		}
 		if (stuResList.size() == 0) {
 			request.setAttribute("msg", "Student not found!!");
 		} else {
 			for (StudentResponseDTO stuRes : stuResList) {
-				ArrayList<CourseBean>courseBeanList=new ArrayList<CourseBean>();
-				ArrayList<CourseResponseDTO> courseResList=dao.selectCourseList(stuRes.getSid());
-				for(CourseResponseDTO courseRes : courseResList) {
-					CourseBean courseBean=new CourseBean();
+				ArrayList<CourseBean> courseBeanList = new ArrayList<CourseBean>();
+				ArrayList<CourseResponseDTO> courseResList = dao.selectCourseList(stuRes.getSid());
+				for (CourseResponseDTO courseRes : courseResList) {
+					CourseBean courseBean = new CourseBean();
 					courseBean.setId(courseRes.getCid());
 					courseBean.setName(courseRes.getName());
-					courseBeanList.add(courseBean);		
+					courseBeanList.add(courseBean);
 				}
-				
 				StudentBean stuBean = new StudentBean();
 				stuBean.setId(stuRes.getSid());
 				stuBean.setName(stuRes.getName());
 				stuBean.setDob(stuRes.getDob());
 				stuBean.setGender(stuRes.getGender());
 				stuBean.setPhone(stuRes.getPhone());
-				stuBean.setEducation(stuRes.getEducation());		
+				stuBean.setEducation(stuRes.getEducation());
 				stuBean.setAttend(courseBeanList);
 				stuBeanList.add(stuBean);
 			}
 		}
-		
 		request.setAttribute("stuList", stuBeanList);
 		request.getRequestDispatcher("STU003.jsp").forward(request, response);
 	}
+	/*
+	 * StudentDAO dao =new StudentDAO(); ArrayList<StudentBean> stuBeanList = new
+	 * ArrayList<StudentBean>(); ArrayList<StudentResponseDTO> studentList =
+	 * dao.selectStudentListByIdOrNameOrCourse(sid, sname, scourse); for
+	 * (StudentResponseDTO student : studentList) { ArrayList<CourseBean>
+	 * courseBeanList=new ArrayList<CourseBean>(); ArrayList<CourseResponseDTO>
+	 * courseResList=dao.selectCourseList(student.getSid()); for(CourseResponseDTO
+	 * courseRes : courseResList) { CourseBean courseBean=new CourseBean();
+	 * courseBean.setId(courseRes.getCid());
+	 * courseBean.setName(courseRes.getName()); courseBeanList.add(courseBean); }
+	 * StudentBean stuBean = new StudentBean(); stuBean.setId(student.getSid());
+	 * stuBean.setName(student.getName()); stuBean.setDob(student.getDob());
+	 * stuBean.setGender(student.getGender()); stuBean.setPhone(student.getPhone());
+	 * stuBean.setEducation(student.getEducation());
+	 * stuBean.setAttend(courseBeanList); stuBeanList.add(stuBean);
+	 * 
+	 * } if (studentList.size() == 0) { studentList = dao.selectAll();
+	 * ArrayList<ArrayList<CourseResponseDTO>> coursesList = new ArrayList<>(); for
+	 * (StudentResponseDTO student : studentList) { ArrayList<CourseResponseDTO>
+	 * courseList =dao.selectCourseList(student.getSid());
+	 * coursesList.add(courseList); } request.setAttribute("stuList", studentList);
+	 * request.setAttribute("courseList", coursesList);
+	 * request.getRequestDispatcher("STU003.jsp").forward(request, response); } else
+	 * { request.setAttribute("stuList", studentList);
+	 * request.setAttribute("courseList", coursesList);
+	 * request.getRequestDispatcher("STU003.jsp").forward(request, response); } }
+	 * 
+	 */
+
 //		List<String> course = new ArrayList<String>();
 //		for (StudentBean student : stuList) {		
 //				course=student.getAttend();

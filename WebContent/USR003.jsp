@@ -100,7 +100,14 @@
 		                    <button type="button" class="btn btn-success ">Update </button>
 		                    </a>
 		                </td>
-		                
+		             <%--    <c:choose>
+		                <c:when test="${userInfo.id==uid }">
+		                <c:set var="not_delete" value="disabled" scope="page"></c:set>
+		                </c:when>
+		                <c:otherwise>
+		                <c:set var="not_delete" value=""></c:set>
+		                </c:otherwise>
+		                </c:choose>		        --%>         
 		                <td>
 		                		<a href="DeleteUserServlet?selectedUserId=${data.id }">		                
 		                <button type="button" class="btn btn-secondary mb-3" data-bs-toggle="modal">Delete</button>      
